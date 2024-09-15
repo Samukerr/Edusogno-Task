@@ -1,22 +1,19 @@
 import speech_recognition as sr
-import pyttsx3
+from gtts import gTTS
+import os
 import pronouncing
 
 # Initialize the recognizer
 r = sr.Recognizer()
 
-# Initialize a text-to-speech engine
-t = pyttsx3.init()
-
-#initializing the Microphone to listin to audio input and utilize Google API
-def record_text():  
-    while True: 
+def record_text():  # Input via microphone
+    while True:  # For error handling
         try:
-            with sr.Microphone() as source:
-                print('Listening...') 
-                r.adjust_for_ambient_noise(source, duration=0.2)  
-                audio = r.listen(source) 
-                mytext = r.recognize_google(audio) 
+            with sr.Microphone() as source:  # Using the device microphone
+                print('Listening...')  # Waiting for input
+                r.adjust_for_ambient_noise(source, duration=0.2)  # Adjust for ambient noise
+                audio = r.listen(source)  # Listen to the audio input
+                mytext = r.recognize_google(audio)  # Using Google Speech-to-Text API
                 print(f'You said: {mytext}')
                 return mytext
         except sr.RequestError as e:
@@ -24,37 +21,53 @@ def record_text():
         except sr.UnknownValueError:
             print('Unknown error occurred, please repeat.')
 
-# Input via terminal
-def input_text():  
+def input_text():  # Input via console
     return input("Please enter text: ")
-    
-# Output stored in text file
-def output_text(text):  
+
+def output_text(text):  # Output to file
     with open('output.txt', 'a') as f:
         f.write(text + '\n')
-        
-# Convert text to speech and speech-text from audio input
-def speak_text(mytext): 
-    t.say(mytext)
-    t.runAndWait()
-    
-# getting pronunciation from CMU dictionary
+
+# Converting text to speech using gTTS
+def speak_text(mytext):  
+    tts = gTTS(text=mytext, lang='en')
+    tts.save('temp_audio.mp3')
+    os.system('start temp_audio.mp3')  # This works on Windows
+
+#getting phonetic pronounciation
 def get_pronunciation(phrase):
     phonics = pronouncing.phones_for_word(phrase)
     if phonics:
         return phonics[0]  
     else:
-        return None
-#return the pronunciation in terminal
+        return None 
+
+
+#display of phonetic pronunciation
 def provide_pronunciation_feedback(phrase):
     pronunciation = get_pronunciation(phrase)
+#providing feedback on errors
+common_errors = {
+    'data': "Try pronouncing 'data' as day-ta"
+    'school': "Try pronouncing 'school' as 's-kool'."
+    'politics':"Try pronouncing 'politics' as 'po-lee-ticks'"
+    'heavy':"Try pronouncing 'heavy' as 'hair-vee'"
+    'schedule':"Try pronouncing 'schedule' as d'ske-jool'"
+}
     if pronunciation:
-        phonetic_representation = pronunciation.replace(" ", "-")  # for Better display of phonetic representation
+        phonetic_representation = pronunciation.replace(" ", "-")  
         print(f"The word '{phrase}' is pronounced like: {phonetic_representation}")
+    feedback = common_errors.get(phrase.lower())
+    if feedback:
+    print(feedback)
+    else:
+
+continue
+
     else:
         print(f"Pronunciation for '{phrase}' isn't found.")
-        
-#stopping the modle from running
+
+#stopping the code after usage
 def confirm_exit():
     print('Do you really want to stop? (yes/no)')
     response = input().strip().lower()
@@ -77,7 +90,7 @@ while True:
             break
         else:
             print('Continuing...')
-#output displayed on terminal
+
     print(f"Said Text: {text}")
     output_text(text)
     print('Text written')
