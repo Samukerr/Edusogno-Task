@@ -34,45 +34,42 @@ def speak_text(mytext):
     tts.save('temp_audio.mp3')
     os.system('start temp_audio.mp3')  # This works on Windows
 
-#getting phonetic pronounciation
-def get_pronunciation(phrase):
-    phonics = pronouncing.phones_for_word(phrase)
+# Getting phonetic pronunciation
+def get_pronunciation(word):
+    phonics = pronouncing.phones_for_word(word)
     if phonics:
-        return phonics[0]  
+        return phonics[0]
     else:
-        return None 
+        return None
 
-
-#display of phonetic pronunciation
+# Display of phonetic pronunciation
 def provide_pronunciation_feedback(phrase):
+    common_errors = {
+        'data': "Try pronouncing 'data' as day-ta",
+        'school': "Try pronouncing 'school' as 's-kool'.",
+        'politics': "Try pronouncing 'politics' as 'po-lee-ticks'",
+        'heavy': "Try pronouncing 'heavy' as 'hair-vee'",
+        'schedule': "Try pronouncing 'schedule' as 'ske-jool'"
+    }
+    
     pronunciation = get_pronunciation(phrase)
-#providing feedback on errors
-common_errors = {
-    'data': "Try pronouncing 'data' as day-ta"
-    'school': "Try pronouncing 'school' as 's-kool'."
-    'politics':"Try pronouncing 'politics' as 'po-lee-ticks'"
-    'heavy':"Try pronouncing 'heavy' as 'hair-vee'"
-    'schedule':"Try pronouncing 'schedule' as d'ske-jool'"
-}
     if pronunciation:
         phonetic_representation = pronunciation.replace(" ", "-")  
         print(f"The word '{phrase}' is pronounced like: {phonetic_representation}")
+    else:
+        print(f"Phonetic pronunciation for '{phrase}' isn't found.")
+    
     feedback = common_errors.get(phrase.lower())
     if feedback:
-    print(feedback)
-    else:
+        print(feedback)
 
-continue
-
-    else:
-        print(f"Pronunciation for '{phrase}' isn't found.")
-
-#stopping the code after usage
+# Stopping the code after usage
 def confirm_exit():
     print('Do you really want to stop? (yes/no)')
     response = input().strip().lower()
     return response == 'yes'
 
+# Main loop
 while True:
     choice = input("Type 's' for speech input or 't' for text input: ").strip().lower()
 
@@ -97,5 +94,5 @@ while True:
     speak_text(text)
 
     words = text.split()
-    for phrase in words:
-        provide_pronunciation_feedback(phrase)
+    for word in words:
+        provide_pronunciation_feedback(word)
